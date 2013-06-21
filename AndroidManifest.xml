@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="net.votebrian.app.random"
+    android:versionCode="1"
+    android:versionName="1.0">
+
+    <uses-sdk
+        android:minSdkVersion="7"
+        android:targetSdkVersion="15" />
+
+    <uses-feature
+        android:name="android.software.live_wallpaper"
+        android:required="true" />
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@drawable/ic_launcher">
+
+        <service
+            android:label="@string/app_name"
+            android:name=".RandomService"
+            android:permission="android.permission.BIND_WALLPAPER">
+
+            <intent-filter>
+                <action
+                    android:name="android.service.wallpaper.WallpaperService" />
+
+            </intent-filter>
+
+            <meta-data
+                android:name="android.service.wallpaper"
+                android:resource="@layout/main" />
+        </service>
+
+        <activity
+            android:label="@string/settings"
+            android:name="net.votebrian.app.random.RandomWallpaperSettings"
+            android:exported="true">
+        </activity>
+
+    </application>
+
+</manifest>

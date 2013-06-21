@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RandomActivity</string>
+    <string name="settings">Settings</string>
+    <string name="settings_wallpaper">Wallpaper Selection</string>
+    <string name="wallpaper_settings_summary">Summary</string>
+    <string name="selection">Cube</string>
+
+    <string-array name="wallpaper_selections">
+        <item>"Selection_Cube"</item>
+        <item>"Selection_Circle"</item>
+    </string-array>
+
+    <string-array name="wallpaper_names">
+        <item>"Name_Cube"</item>
+        <item>"Name_Circle"</item>
+    </string-array>
+
+</resources>
