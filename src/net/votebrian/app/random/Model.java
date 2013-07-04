@@ -220,7 +220,7 @@ public class Model {
 
             gl.glColorPointer(4, GL10.GL_FLOAT, 0, mOutlineColorBuffer);
             gl.glVertexPointer(3, GL10.GL_FLOAT, 0, mOutlineBuffer);
-            gl.glLineWidth(5f);
+            gl.glLineWidth(2f);
             gl.glDrawArrays(GL10.GL_LINES, 0, mNumOutlineVertices);
 
             gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
@@ -254,7 +254,8 @@ public class Model {
 
     public void updateModelColor(float[] array) {
         mColor = array;
-        mColorBuffer = buildColorBuffer(mColor, mNumVertices);
+        // mColorBuffer = buildColorBuffer(mColor, mNumVertices);
+        updateColorBuffer(mColorBuffer, mColor, mNumVertices);
     }
 
     public void setVertices(float[] vertices) {
@@ -268,7 +269,8 @@ public class Model {
     public void updateVertices(float[] vertices) {
         mVertices = vertices;
 
-        mVertexBuffer = makeFloatBuffer(mVertices);
+        // mVertexBuffer = makeFloatBuffer(mVertices);
+        updateFloatBuffer(mVertexBuffer, mVertices);
     }
 
     // Bypass setting the vertex array.
@@ -394,7 +396,7 @@ public class Model {
         mNumOutlineVertices = mOutline.length/3;
 
         mOutlineBuffer = makeFloatBuffer(mOutline);
-        colorBufferArray = new float[mNumVertices*4];
+        colorBufferArray = new float[numIndices*4];
         mOutlineColorBuffer = buildColorBuffer(mOutlineColor, mNumOutlineVertices);
     }
 
@@ -441,10 +443,26 @@ public class Model {
         return makeFloatBuffer(colorBufferArray);
     }
 
+    public void updateColorBuffer(FloatBuffer fb, float[] array, int numVertices) {
+        for(int c = 0; c < mNumVertices; c++) {
+            colorBufferArray[c*4 + 0] = array[0];
+            colorBufferArray[c*4 + 1] = array[1];
+            colorBufferArray[c*4 + 2] = array[2];
+            colorBufferArray[c*4 + 3] = array[3];
+        }
+
+        updateFloatBuffer(fb, colorBufferArray);
+    }
+
     private void initBuffers() {
         mVertexBuffer = makeFloatBuffer(mVertices);
         mColorBuffer = makeFloatBuffer(mColor);
         mOutlineColorBuffer = makeFloatBuffer(mOutlineColor);
+    }
+
+    private void updateFloatBuffer(FloatBuffer fb, float[] array) {
+        fb.put(array);
+        fb.position(0);
     }
 
     private FloatBuffer makeFloatBuffer(float[] array) {

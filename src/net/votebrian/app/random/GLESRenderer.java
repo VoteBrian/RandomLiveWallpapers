@@ -2,6 +2,10 @@ package net.votebrian.app.random;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.util.Log;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -13,43 +17,120 @@ import net.rbgrn.android.glwallpaperservice.*;
 
 public class GLESRenderer
         implements GLWallpaperService.Renderer,
-                   SharedPreferences.OnSharedPreferenceChangeListener {
-    Context mCtx;
-    Donut donut;
+                   SharedPreferences.OnSharedPreferenceChangeListener/*,
+                   SensorEventListener*/ {
+    private Context mCtx;
+    private Donut donut;
+    private Atoms atoms;
+    private Flag  flag;
 
     //.....................................................
+    private SensorManager mSensorManager;
+    private Sensor        mSensor;
+
     private int mViewW, mViewH;
     private float mViewAngle = 10f;
 
     int mFrame = 0;
+
+    private int mWallpaperSelection = 0;
 
     private float mNearH = 0f;
     private float mNearW = 0f;
     private float mNearZ = 1f;
     private float mFarZ  = 30f;
 
+    private float mSceneAngle = 0f;
+    private final float mSceneAngleFactor = 110f;
+
+    private float mAngleOffset = 1.0f;
+    private float mSensorX = 0f;
+    private float mSensorY = 0f;
+    private float mSensorZ = 0f;
+
     public final int SS_SUNLIGHT = GL10.GL_LIGHT0;
 
     private FloatBuffer mPositionBuffer;
     private FloatBuffer mDiffuseBuffer;
+
+    private SharedPreferences mPrefs;
+
+    private float[] mBlack      = {0.00f, 0.00f, 0.00f, 1.0f};
+    private float[] mBlue       = {(float)0/255,
+                                   (float)153/255,
+                                   (float)204/255,
+                                   (float)255/255};
+    private float[] mPurple     = {(float)153/255,
+                                   (float)50/255,
+                                   (float)204/255,
+                                   (float)255/255};
+    private float[] mGreen      = {(float)102/255,
+                                   (float)153/255,
+                                   (float)0/255,
+                                   (float)255/255};
+    private float[] mOrange     = {(float)255/255,
+                                   (float)136/255,
+                                   (float)0/255,
+                                   (float)255/255};
+    private float[] mRed        = {(float)204/255,
+                                   (float)0/255,
+                                   (float)0/255,
+                                   (float)255/255};
+    private float[] mWhite      = {(float)251/255,
+                                   (float)248/255,
+                                   (float)206/255,
+                                   (float)255/255};
+    private float[] mClearColor = {0.00f, 0.00f, 0.00f, 1.0f};
+
+    private final int ATOMS = 0;
+    private final int DONUT = 1;
+    private final int FLAG  = 2;
 
     //.....................................................
 
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         // Create models
         donut = new Donut(mCtx, gl);
+        atoms = new Atoms(mCtx, gl);
+        flag  = new Flag(mCtx, gl);
+
+        mPrefs = mCtx.getSharedPreferences(RandomService.SHARED_PREFS_NAME, 0);
+        mPrefs.registerOnSharedPreferenceChangeListener(this);
+        onSharedPreferenceChanged(mPrefs, null);
+
+        // mSensorManager = (SensorManager) mCtx.getSystemService(Context.SENSOR_SERVICE);
+        // mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+
+        // mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_UI);
     }
 
     public void onDrawFrame(GL10 gl) {
+        gl.glClearColor(mClearColor[0], mClearColor[1], mClearColor[2], mClearColor[3]);
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
         gl.glPushMatrix();
-        // gl.glRotatef(5f, 1f, 0f, 0f);
-        gl.glTranslatef( 0f, 0f, -17f);
-        gl.glRotatef(30f, 1f, 0f, 0f);
-        // cube.draw(gl);
-        donut.draw(gl);
 
-        // gl.glTranslatef( 0f, 0f, -17f);
+        switch(mWallpaperSelection) {
+            case ATOMS:
+                gl.glTranslatef(0f, 0f, -10f);
+                // gl.glRotatef(-mSceneAngle, 0f, 1f, 0f);
+                atoms.draw(gl);
+                break;
+            case DONUT:
+                gl.glTranslatef( 0f, 0f, -17f);
+
+                gl.glRotatef(30f - mSensorX*mAngleOffset, 1f, 0f, 0f);
+                gl.glRotatef(mSensorZ*mAngleOffset + mSceneAngle, 0f, 1f, 0f);
+                gl.glRotatef(-mSensorY*mAngleOffset, 0f, 0f, 1f);
+
+                donut.draw(gl);
+                break;
+            case FLAG:
+                gl.glTranslatef(0f, 0f, -8f);
+                gl.glRotatef(-mSceneAngle, 0f, 1f, 0f);
+                flag.draw(gl);
+                break;
+        }
+
         gl.glPopMatrix();
     }
 
@@ -61,6 +142,12 @@ public class GLESRenderer
         initLighting(gl);
         setDisplayProperties(gl);
         setProjection(gl);
+
+        float screenHeight = 10f * (float)Math.tan(Math.toRadians(mViewAngle));
+        float screenWidth = screenHeight * width / height;
+
+        atoms.updateWallpaper(screenWidth, screenHeight);
+        flag.updateWallpaper(screenWidth, screenHeight);
     }
 
     public void setContext(Context context) {
@@ -75,7 +162,37 @@ public class GLESRenderer
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        Log.v("RENDERER", "Key: " + key);
+        String color = sharedPreferences.getString("settings_bg_color", "black");
+
+        if("white".equals(color)) {
+            mClearColor = mWhite;
+        } else if("black".equals(color)) {
+            mClearColor = mBlack;
+        } else if("blue".equals(color)) {
+            mClearColor = mBlue;
+        } else if("purple".equals(color)) {
+            mClearColor = mPurple;
+        } else if("green".equals(color)) {
+            mClearColor = mGreen;
+        } else if("orange".equals(color)) {
+            mClearColor = mOrange;
+        } else if("red".equals(color)) {
+            mClearColor = mRed;
+        }
+
+        donut.setColor(mClearColor);
+
+
+        String wallpaper = sharedPreferences.getString("settings_wallpaper", "atoms");
+        Log.v("PREFERENCES", "Wallpaper: " + wallpaper);
+
+        if("atoms".equals(wallpaper)) {
+            mWallpaperSelection = ATOMS;
+        } else if("donut".equals(wallpaper)) {
+            mWallpaperSelection = DONUT;
+        } else if("flag".equals(wallpaper)) {
+            mWallpaperSelection = FLAG;
+        }
     }
 
     //.....................................................
@@ -107,6 +224,7 @@ public class GLESRenderer
         // Set background color
         // gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         gl.glClearColor(0.66f, 0.12f, 0.13f, 1.0f);
+        // gl.glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 
         // Set to remove CW triangles
@@ -142,4 +260,22 @@ public class GLESRenderer
 
         gl.glMatrixMode(GL10.GL_MODELVIEW);
     }
+
+    public void updateAngle(float xOffset) {
+        mSceneAngle = mSceneAngleFactor * xOffset;
+    }
+
+/*
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        mSensorX = event.values[0];
+        mSensorY = event.values[1];
+        mSensorZ = event.values[2];
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int x) {
+        // stuff
+    }
+*/
 }

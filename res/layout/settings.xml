@@ -12,4 +12,11 @@
             android:entries="@array/wallpaper_names"
             android:entryValues="@array/wallpaper_selections" />
 
+    <ListPreference
+            android:key="settings_bg_color"
+            android:title="@string/settings_bg_color"
+            android:summary="@string/wallpaper_settings_summary"
+            android:entries="@array/color_names"
+            android:entryValues="@array/color_selections" />
+
 </PreferenceScreen>

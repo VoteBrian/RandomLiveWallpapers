@@ -2,6 +2,7 @@ package net.votebrian.app.random;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import net.rbgrn.android.glwallpaperservice.*;
 
 // Original code provided by Robert Green
@@ -9,7 +10,7 @@ import net.rbgrn.android.glwallpaperservice.*;
 public class RandomService extends GLWallpaperService {
     Context mCtx;
 
-    public static final String SHARED_PREFS_NAME="random_settings";
+    public static final String SHARED_PREFS_NAME = "random_settings";
 
     public RandomService() {
         super();
@@ -47,6 +48,12 @@ public class RandomService extends GLWallpaperService {
 
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             // stuff
+        }
+
+        public void onOffsetsChanged (float xOffset, float yOffset,
+                                      float xOffsetStep, float yOffsetStep,
+                                      int xPixelOffset, int yPixelOffset) {
+            renderer.updateAngle(xOffset - 0.5f);  // 0 offset at center screen
         }
     }
 }
