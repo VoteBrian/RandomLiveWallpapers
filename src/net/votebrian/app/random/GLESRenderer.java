@@ -23,6 +23,7 @@ public class GLESRenderer
     private Donut donut;
     private Atoms atoms;
     private Flag  flag;
+    private Squares squares;
 
     //.....................................................
     private SensorManager mSensorManager;
@@ -82,17 +83,19 @@ public class GLESRenderer
                                    (float)255/255};
     private float[] mClearColor = {0.00f, 0.00f, 0.00f, 1.0f};
 
-    private final int ATOMS = 0;
-    private final int DONUT = 1;
-    private final int FLAG  = 2;
+    private final int ATOMS   = 0;
+    private final int DONUT   = 1;
+    private final int FLAG    = 2;
+    private final int SQUARES = 3;
 
     //.....................................................
 
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         // Create models
-        donut = new Donut(mCtx, gl);
-        atoms = new Atoms(mCtx, gl);
-        flag  = new Flag(mCtx, gl);
+        donut   = new Donut(mCtx, gl);
+        atoms   = new Atoms(mCtx, gl);
+        flag    = new Flag(mCtx, gl);
+        squares = new Squares(mCtx, gl);
 
         mPrefs = mCtx.getSharedPreferences(RandomService.SHARED_PREFS_NAME, 0);
         mPrefs.registerOnSharedPreferenceChangeListener(this);
@@ -125,9 +128,14 @@ public class GLESRenderer
                 donut.draw(gl);
                 break;
             case FLAG:
-                gl.glTranslatef(0f, 0f, -8f);
-                gl.glRotatef(-mSceneAngle, 0f, 1f, 0f);
+                gl.glTranslatef(0f, 0f, -6f);
+                gl.glRotatef(15f, 0f, 0f, 1f);
+                gl.glRotatef(-60f, 0f, 1f, 0f);
                 flag.draw(gl);
+                break;
+            case SQUARES:
+                gl.glTranslatef(0f, 0f, -9f);
+                squares.draw(gl);
                 break;
         }
 
@@ -148,6 +156,7 @@ public class GLESRenderer
 
         atoms.updateWallpaper(screenWidth, screenHeight);
         flag.updateWallpaper(screenWidth, screenHeight);
+        squares.updateWallpaper(screenWidth, screenHeight);
     }
 
     public void setContext(Context context) {
@@ -181,10 +190,10 @@ public class GLESRenderer
         }
 
         donut.setColor(mClearColor);
+        squares.setColor(mClearColor);
 
 
         String wallpaper = sharedPreferences.getString("settings_wallpaper", "atoms");
-        Log.v("PREFERENCES", "Wallpaper: " + wallpaper);
 
         if("atoms".equals(wallpaper)) {
             mWallpaperSelection = ATOMS;
@@ -192,6 +201,8 @@ public class GLESRenderer
             mWallpaperSelection = DONUT;
         } else if("flag".equals(wallpaper)) {
             mWallpaperSelection = FLAG;
+        } else if("squares".equals(wallpaper)) {
+            mWallpaperSelection = SQUARES;
         }
     }
 

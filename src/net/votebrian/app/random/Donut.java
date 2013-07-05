@@ -87,7 +87,6 @@ public class Donut {
 
     public void setColor(float[] color) {
         donutColor = color;
-        Log.v("SET COLOR", "Donut: " + donutColor[0] + ", " + donutColor[1] + ", " + donutColor[2]);
     }
 
     private void initializeArrays() {

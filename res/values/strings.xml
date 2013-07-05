@@ -30,12 +30,14 @@
         <item>"atoms"</item>
         <item>"donut"</item>
         <item>"flag"</item>
+        <item>"squares"</item>
     </string-array>
 
     <string-array name="wallpaper_names">
         <item>"Atomic Wave"</item>
         <item>"Donut"</item>
-        <item>"USA!"</item>
+        <item>"Flag"</item>
+        <item>"Rotating Squares"</item>
     </string-array>
 
 </resources>

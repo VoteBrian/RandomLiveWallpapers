@@ -13,8 +13,8 @@ public class Flag {
     private int DIMS_PER_VERT = 3;
     private int POINTS_PER_LINE = 2;
 
-    private Model[] mCircles;
     private Model[] mDots;
+    private Model   mPole;
     private float[] mVertices;
     private float[] mTempVertices;
 
@@ -43,13 +43,10 @@ public class Flag {
 
     private int row, col;
 
-    // private float[] outlineAtomColor = {0.8f, 0.8f, 0.8f, 0.3f};
-    private float[] outlineAtomColor = {0.9f, 0.9f, 0.9f, 0.3f};
-    private float[] outlineDotColor = {0.8f, 0.8f, 0.8f, 0.5f};
-
     private float[] redDotColor   = {0.8f, 0.2f, 0.2f, 0.8f};
     private float[] whiteDotColor = {0.9f, 0.9f, 0.9f, 0.8f};
     private float[] blueDotColor  = {0.2f, 0.2f, 0.8f, 0.8f};
+    private float[] greyDotColor  = {0.6f, 0.6f, 0.6f, 0.8f};
 
     public Flag(Context context, GL10 gl) {
         mCtx    = context;
@@ -64,33 +61,22 @@ public class Flag {
 
         mAtomRadius = 2 * mScreenWidth / (0.9f + (1.1f * mNumCols));
         mDotRadius = mAtomRadius/5;
-        // mNumRows = (int)Math.floor(2*mScreenHeight/mAtomRadius);
+
         mNumRows = 13;
 
         initializeWallpaper();
     }
 
     private void initializeWallpaper() {
-
-        mCircles = new Model[mNumRows * mNumCols];
         mDots    = new Model[mNumRows * mNumCols];
 
         for(row = 0; row < mNumRows; row++) {
             for(col = 0; col < mNumCols; col++) {
                 int index = row*mNumCols + col;
 
-                mCircles[index] = new Model(mCtx, mGl);
-                mCircles[index].setVertices(initializeCircle());
-                mCircles[index].setPosition( (-1f*(mScreenWidth-mAtomRadius)) + (float)(1.1 * mAtomRadius * col), (mScreenHeight-mAtomRadius) - (float)(1.1 * mAtomRadius * row), 0f);
-                mCircles[index].setModelColor(outlineAtomColor);
-
-                mCircles[index].setOutlineColor(outlineAtomColor);
-                mCircles[index].setOutlineIndices(initializeCircleIndices());
-                mCircles[index].enableOutline();
-
                 mDots[index] = new Model(mCtx, mGl);
-                mOffsetX = (float)mAtomRadius * (float)Math.cos( (2*Math.PI) * (mDeltaPhase * (row + col)));
-                mOffsetY = (float)mAtomRadius * (float)Math.sin( (2*Math.PI) * (mDeltaPhase * (row + col)));
+                mOffsetX = (float)(mAtomRadius * col/mNumCols) * (float)Math.cos( (2*Math.PI) * (mDeltaPhase * (row + col)));
+                mOffsetY = (float)(mAtomRadius * col/mNumCols) * (float)Math.sin( (2*Math.PI) * (mDeltaPhase * (row + col)));
                 mDots[index].setVertices(initializeDot(mOffsetX, mOffsetY));
                 mDots[index].setPosition( (-1f*(mScreenWidth-mAtomRadius)) + (float)(1.1 * mAtomRadius * col), (0.75f*mScreenHeight-mAtomRadius)  - (float)(1.1 * mAtomRadius * row), 0f);
 
@@ -101,40 +87,12 @@ public class Flag {
                 } else {
                     mDots[index].setModelColor(redDotColor);
                 }
-                // mDots[index].setModelColor(outlineDotColor);
             }
         }
-    }
 
-    private float[] initializeCircle() {
-        mVertices = new float[mNumAtomPoints*DIMS_PER_VERT];
-
-        for(int point = 0; point < mNumAtomPoints; point++) {
-            int index = point * DIMS_PER_VERT;
-            mVertices[index] = (float)mAtomRadius * (float)Math.cos( (float)(2*Math.PI) * (float)point/mNumAtomPoints);
-            mVertices[index+1] = (float)mAtomRadius * (float)Math.sin( (float)(2*Math.PI) * (float)point/mNumAtomPoints);
-            mVertices[index+2] = 0;
-        }
-
-        return mVertices;
-    }
-
-    private int[] initializeCircleIndices() {
-        int nextPoint, index;
-
-        mIndices = new int[mNumAtomPoints * POINTS_PER_LINE];
-
-        for(int point = 0; point < mNumAtomPoints; point++) {
-            index = point * POINTS_PER_LINE;
-            nextPoint = point + 1;
-            if(nextPoint == mNumAtomPoints) {
-                nextPoint = 0;
-            }
-            mIndices[index] = point;
-            mIndices[index+1] = nextPoint;
-        }
-
-        return mIndices;
+        mPole = new Model(mCtx, mGl);
+        mPole.setVertices(initializeDot(0f, 0f));
+        mPole.setModelColor(greyDotColor);
     }
 
     private float[] initializeDot(float offsetX, float offsetY) {
@@ -168,11 +126,14 @@ public class Flag {
     public void draw(GL10 gl) {
         for(row = 0; row < mNumRows; row++) {
             for(col = 0; col < mNumCols; col++) {
-                //mCircles[row*mNumCols + col].draw(gl);
-
                 mDots[row*mNumCols + col].setRotation(0, 0, (float)-1*360*counter/delay);
                 mDots[row*mNumCols + col].draw(gl);
             }
+        }
+
+        for(row = mNumRows; row < mNumRows + 10; row++) {
+            mPole.setPosition((-1f*(mScreenWidth-mAtomRadius)), (0.75f*mScreenHeight-mAtomRadius)  - (float)(1.1 * mAtomRadius * row), 0f);
+            mPole.draw(gl);
         }
 
         // counter for animation
