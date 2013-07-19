@@ -259,9 +259,9 @@ public class GLESRenderer
         gl.glFrontFace(GL10.GL_CCW);
         gl.glCullFace(GL10.GL_FRONT);
 
-        // gl.glClearDepthf(1.0f);
-        // gl.glEnable(GL10.GL_DEPTH_TEST);
-        // gl.glDepthFunc(GL10.GL_LEQUAL);
+        gl.glClearDepthf(1.0f);
+        gl.glEnable(GL10.GL_DEPTH_TEST);
+        gl.glDepthFunc(GL10.GL_LEQUAL);
 
         // set blend parameter
         gl.glEnable(GL10.GL_BLEND);

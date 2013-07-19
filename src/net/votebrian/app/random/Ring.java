@@ -37,8 +37,8 @@ public class Ring extends Model {
     private final int DIMS_PER_VERTICES = 3;
     private final int POINTS_PER_LINE = 2;
 
-    private float[] ringColor = {0.984f, 0.973f, 0.807f, 0.15f};
-    private float[] outlineColor = {0.1f, 0.1f, 0.12f, 0.8f};
+    private float[] ringColor = {0.984f, 0.973f, 0.807f, 0.12f};
+    private float[] outlineColor = {0.2f, 0.2f, 0.22f, 1.0f};
 
     public Ring(Context context, GL10 gl) {
         super(context, gl);
@@ -139,7 +139,7 @@ public class Ring extends Model {
     }
 
     public void setOffsets(int count) {
-        mOffsetX = 0.12f * (float)Math.sin(2*Math.PI*count/mXFreq);
-        mOffsetY = 0.15f * (float)Math.cos(2*Math.PI*count/mYFreq);
+        mOffsetX = 0.8f * mRadiusInner * (float)Math.sin(2*Math.PI*count/mXFreq);
+        mOffsetY = 0.8f * mRadiusInner * (float)Math.cos(2*Math.PI*count/mYFreq);
     }
 }

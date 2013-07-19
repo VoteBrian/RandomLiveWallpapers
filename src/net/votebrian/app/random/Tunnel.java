@@ -30,7 +30,7 @@ public class Tunnel {
         for(int x = 0; x < mNumRings; x++) {
             mRings[x] = new Ring(mCtx, gl);
             mRings[x].setFrame(x * mDelta);
-            mRings[x].setOffsets(mCounter);
+            mRings[x].setOffsets(mNumRings - mCounter);
             mCounter++;
         }
     }
@@ -38,24 +38,55 @@ public class Tunnel {
     public void draw(GL10 gl) {
         int currFrame;
         float offsetZ = 0f;
+        int[] zOrder = new int[mNumRings];
+        int[] sorted = new int[mNumRings];
+
+        // get array of z positions
+        for(int x = 0; x < mNumRings; x++) {
+            zOrder[x] = mRings[x].getFrame();
+        }
+
+        sorted = bubbleSort(zOrder);
 
         for(int x = 0; x < mNumRings; x++) {
-            currFrame = mRings[x].getFrame();
+            currFrame = mRings[sorted[x]].getFrame();
 
             gl.glPushMatrix();
             gl.glTranslatef(0f, 0f, -1 * (mFarZ - (mRange * currFrame / mDelay)));
-            mRings[x].draw(gl);
+            mRings[sorted[x]].draw(gl);
             gl.glPopMatrix();
 
             currFrame++;
             if(currFrame == mDelay) {
                 currFrame = 0;
-                mRings[x].setOffsets(mCounter);
+                mRings[sorted[x]].setOffsets(mCounter);
                 mCounter++;
             }
 
-            mRings[x].setFrame(currFrame);
+            mRings[sorted[x]].setFrame(currFrame);
         }
+    }
+
+    private int[] bubbleSort(int[] unsorted) {
+        int[] sorted = new int[unsorted.length];
+        int temp;
+
+        for(int x = 0; x < unsorted.length; x++) {
+            sorted[x] = x;
+        }
+
+        // sort the rings by z position
+        for(int x = 0; x < unsorted.length; x++) {
+            for(int y = 0; y < unsorted.length-1-x; y++) {
+                if( unsorted[sorted[y]] > unsorted[sorted[y+1]] ) {
+                    temp = sorted[y];
+                    sorted[y] = sorted[y+1];
+                    sorted[y+1] = temp;
+                }
+            }
+        }
+
+        return sorted;
     }
 
     public void initialize(float radiusInner, float radiusOuter, float nearZ, float farZ) {
