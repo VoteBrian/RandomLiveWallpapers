@@ -30,8 +30,6 @@ public class Tunnel {
         for(int x = 0; x < mNumRings; x++) {
             mRings[x] = new Ring(mCtx, gl);
             mRings[x].setFrame(x * mDelta);
-            mRings[x].setOffsets(mNumRings - mCounter);
-            mCounter++;
         }
     }
 
@@ -52,6 +50,7 @@ public class Tunnel {
             currFrame = mRings[sorted[x]].getFrame();
 
             gl.glPushMatrix();
+            gl.glRotatef(0f, 0f, 1f, currFrame);
             gl.glTranslatef(0f, 0f, -1 * (mFarZ - (mRange * currFrame / mDelay)));
             mRings[sorted[x]].draw(gl);
             gl.glPopMatrix();
@@ -96,6 +95,8 @@ public class Tunnel {
 
         for(int x = 0; x < mNumRings; x++) {
             mRings[x].initialize(radiusInner, radiusOuter);
+            mRings[x].setOffsets(mNumRings - mCounter - 1);
+            mCounter++;
         }
     }
 }

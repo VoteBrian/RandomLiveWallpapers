@@ -118,16 +118,8 @@ public class Ring extends Model {
     @Override
     public void draw(GL10 gl) {
         gl.glTranslatef(mOffsetX, mOffsetY, mOffsetZ);
-        gl.glRotatef(0f, 0f, 1f, mRotation);
+        // super.setRotation(0f, 0f, mFrame);
         super.draw(gl);
-    }
-
-    public void setZOffset(float z) {
-        mOffsetZ = z;
-    }
-
-    public float getZOffset(float z) {
-        return mOffsetZ;
     }
 
     public void setFrame(int frame) {
@@ -139,7 +131,7 @@ public class Ring extends Model {
     }
 
     public void setOffsets(int count) {
-        mOffsetX = 0.8f * mRadiusInner * (float)Math.sin(2*Math.PI*count/mXFreq);
-        mOffsetY = 0.8f * mRadiusInner * (float)Math.cos(2*Math.PI*count/mYFreq);
+        mOffsetX = 0.75f * mRadiusInner * (float)Math.sin(2*Math.PI*count/mXFreq);
+        mOffsetY = 0.75f * mRadiusInner * (float)Math.cos(2*Math.PI*count/mYFreq);
     }
 }

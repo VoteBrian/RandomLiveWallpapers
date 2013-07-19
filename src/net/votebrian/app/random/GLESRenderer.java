@@ -168,8 +168,8 @@ public class GLESRenderer
         squares.updateWallpaper(screenWidth, screenHeight);
 
         float radiusInner, radiusOuter;
-        radiusInner = (float)Math.sqrt(Math.pow(mNearH, 2) + Math.pow(mNearW, 2));
-        radiusOuter = (float)Math.sqrt(Math.pow(mFarH, 2) + Math.pow(mFarW, 2));
+        radiusInner = 1.25f * ((float)Math.sqrt(Math.pow(mNearH, 2) + Math.pow(mNearW, 2)));
+        radiusOuter = 1.25f * ((float)Math.sqrt(Math.pow(mFarH, 2) + Math.pow(mFarW, 2)));
         tunnel.initialize(radiusInner, radiusOuter, mNearZ, mFarZ);
     }
 
