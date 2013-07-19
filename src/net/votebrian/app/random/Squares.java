@@ -10,7 +10,7 @@ public class Squares {
 
     private Model[] mSquares;
 
-    private int mNumSquares = 50;
+    private int mNumSquares = 20;
 
     private float[] mVertices;
     private float mWidth = 10f;
@@ -19,12 +19,12 @@ public class Squares {
     private final int VERTICES_PER_TRIANGLE = 3;
     private final int DIMS_PER_VERTEX = 3;
 
-    // private float[] outlineColor = {0.984f, 0.973f, 0.807f, 1.0f};
-    private float[] outlineColor = {0.1f, 0.1f, 0.15f, 1.0f};
+    private float[] outlineColor = {0.984f, 0.973f, 0.807f, 0.15f};
+    // private float[] outlineColor = {0.1f, 0.1f, 0.15f, 1.0f};
     private float[] backgroundColor = {0.0f, 0.0f, 0.0f, 1.0f};
 
     private int counter = 0;
-    private int delay = 2500;
+    private int delay = 200;
 
     public Squares(Context context, GL10 gl) {
         mCtx = context;

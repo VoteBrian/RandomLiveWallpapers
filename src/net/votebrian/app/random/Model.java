@@ -29,7 +29,7 @@ public class Model {
     private boolean mEnableOutline = false;
 
     // Model
-    private float[] mVertices = {
+    public float[] mVertices = {
          0.0f,  0.5f, 0f,
         -0.5f, -0.5f, 0f,
          0.5f, -0.5f, 0f

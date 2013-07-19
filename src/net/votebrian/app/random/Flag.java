@@ -29,7 +29,7 @@ public class Flag {
     private float mOffsetX, mOffsetY;
 
     private int counter = 0;
-    private int delay = 60;
+    private int delay = 40;
 
     private int mNumRows = 0;
     private int mNumCols = 30;

@@ -31,6 +31,7 @@
         <item>"donut"</item>
         <item>"flag"</item>
         <item>"squares"</item>
+        <item>"tunnel"</item>
     </string-array>
 
     <string-array name="wallpaper_names">
@@ -38,6 +39,7 @@
         <item>"Donut"</item>
         <item>"Flag"</item>
         <item>"Rotating Squares"</item>
+        <item>"Tunnel"</item>
     </string-array>
 
 </resources>

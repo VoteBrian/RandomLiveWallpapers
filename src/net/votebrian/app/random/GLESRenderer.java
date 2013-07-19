@@ -24,6 +24,7 @@ public class GLESRenderer
     private Atoms atoms;
     private Flag  flag;
     private Squares squares;
+    private Tunnel tunnel;
 
     //.....................................................
     private SensorManager mSensorManager;
@@ -39,6 +40,8 @@ public class GLESRenderer
     private float mNearH = 0f;
     private float mNearW = 0f;
     private float mNearZ = 1f;
+    private float mFarH  = 0f;
+    private float mFarW  = 0f;
     private float mFarZ  = 30f;
 
     private float mSceneAngle = 0f;
@@ -87,6 +90,7 @@ public class GLESRenderer
     private final int DONUT   = 1;
     private final int FLAG    = 2;
     private final int SQUARES = 3;
+    private final int TUNNEL  = 4;
 
     //.....................................................
 
@@ -96,6 +100,7 @@ public class GLESRenderer
         atoms   = new Atoms(mCtx, gl);
         flag    = new Flag(mCtx, gl);
         squares = new Squares(mCtx, gl);
+        tunnel  = new Tunnel(mCtx, gl);
 
         mPrefs = mCtx.getSharedPreferences(RandomService.SHARED_PREFS_NAME, 0);
         mPrefs.registerOnSharedPreferenceChangeListener(this);
@@ -137,6 +142,10 @@ public class GLESRenderer
                 gl.glTranslatef(0f, 0f, -9f);
                 squares.draw(gl);
                 break;
+            case TUNNEL:
+                // gl.glTranslatef(0f, 0f, -30f);
+                tunnel.draw(gl);
+                break;
         }
 
         gl.glPopMatrix();
@@ -157,6 +166,11 @@ public class GLESRenderer
         atoms.updateWallpaper(screenWidth, screenHeight);
         flag.updateWallpaper(screenWidth, screenHeight);
         squares.updateWallpaper(screenWidth, screenHeight);
+
+        float radiusInner, radiusOuter;
+        radiusInner = (float)Math.sqrt(Math.pow(mNearH, 2) + Math.pow(mNearW, 2));
+        radiusOuter = (float)Math.sqrt(Math.pow(mFarH, 2) + Math.pow(mFarW, 2));
+        tunnel.initialize(radiusInner, radiusOuter, mNearZ, mFarZ);
     }
 
     public void setContext(Context context) {
@@ -203,6 +217,8 @@ public class GLESRenderer
             mWallpaperSelection = FLAG;
         } else if("squares".equals(wallpaper)) {
             mWallpaperSelection = SQUARES;
+        } else if("tunnel".equals(wallpaper)) {
+            mWallpaperSelection = TUNNEL;
         }
     }
 
@@ -243,9 +259,9 @@ public class GLESRenderer
         gl.glFrontFace(GL10.GL_CCW);
         gl.glCullFace(GL10.GL_FRONT);
 
-        gl.glClearDepthf(1.0f);
-        gl.glEnable(GL10.GL_DEPTH_TEST);
-        gl.glDepthFunc(GL10.GL_LEQUAL);
+        // gl.glClearDepthf(1.0f);
+        // gl.glEnable(GL10.GL_DEPTH_TEST);
+        // gl.glDepthFunc(GL10.GL_LEQUAL);
 
         // set blend parameter
         gl.glEnable(GL10.GL_BLEND);
@@ -261,6 +277,9 @@ public class GLESRenderer
         // stuff stuff
         mNearH = (float) (mNearZ * (Math.tan(Math.toRadians(mViewAngle))));
         mNearW = mNearH * ratio;
+
+        mFarH = (float) (mFarZ * (Math.tan(Math.toRadians(mViewAngle))));
+        mFarW = mFarH * ratio;
 
         gl.glViewport(0, 0, mViewW, mViewH);
 
